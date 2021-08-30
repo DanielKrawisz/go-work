@@ -9,5 +9,4 @@ require (
 	github.com/ordishs/go-bitcoin v1.0.27
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
-	gopkg.in/zeromq/goczmq.v4 v4.1.0 // indirect
 )
