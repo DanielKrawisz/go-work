@@ -1,10 +1,10 @@
 package work_test
 
 import (
-	"encoding/binary"
 	"testing"
 
 	"github.com/DanielKrawisz/go-work"
+	"github.com/libsv/go-bc"
 	"github.com/libsv/go-bk/crypto"
 	"github.com/stretchr/testify/assert"
 )
@@ -24,25 +24,23 @@ func TestWork(t *testing.T) {
 
 	targets := [3]uint32{target256, target512, target1024}
 	masks := [2]*uint32{nil, new(uint32)}
-	masks[1] = work.Bip320Mask
+	*masks[1] = work.Bip320Mask
 
 	const magicNumber uint32 = 1
 	const gpb uint32 = 0xffffffff
-	const version uint32 = work.Version(magic_number, gpb)
+	version := work.Version(magicNumber, gpb)
 
 	var proofs [12]*work.Proof
 
-	i := uin32(0)
-	for t := range targets {
-		for m := range messageHashes {
-			for mask := range [2]*uin32{nil, work.Bip320Mask} {
-				bits := make([]byte, 4)
-				binary.BigEndian.Uint32(bits[:4])
+	i := uint32(0)
+	for _, target := range targets {
+		for _, m := range messageHashes {
+			for _, mask := range masks {
 				puzzle := work.Puzzle{
 					Candidate: work.Candidate{
-						Version:    magicNumber,
+						Version:    version,
 						Digest:     m,
-						Bits:       bits,
+						Bits:       bc.UInt32ToBytes(target),
 						MerklePath: make([]string, 0),
 					},
 					CoinbaseBegin: make([]byte, 0),
@@ -53,14 +51,16 @@ func TestWork(t *testing.T) {
 				if mask == nil {
 					share = work.MakeShare(0, 0, 0)
 				} else {
-					share = work.MakeShareBIP320(0, 0, 0, 0xffffffff)
+					share = work.MakeShareASICBoost(0, 0, 0, 0xffffffff)
 				}
 				solution := work.Solution{
 					ExtraNonce1: 0,
 					Share:       share,
 				}
 
-				proofs[i] = CPUSolve(puzzle, solution)
+				var err error
+				proofs[i], err = work.CPUSolve(puzzle, solution)
+				assert.True(t, err == nil)
 
 				i++
 			}

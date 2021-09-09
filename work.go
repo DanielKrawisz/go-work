@@ -14,7 +14,7 @@ import (
 // puzzle that are provided by getminingcandidate.
 type Candidate struct {
 	Version    uint32
-	Digest     string
+	Digest     []byte
 	Bits       []byte
 	MerklePath []string
 }
@@ -24,9 +24,13 @@ func MakeCandidate(mc *bitcoin.MiningCandidate) (*Candidate, error) {
 	if err != nil {
 		return nil, err
 	}
+	prevHash, err := hex.DecodeString(mc.PreviousHash)
+	if err != nil {
+		return nil, err
+	}
 	return &Candidate{
 		Version:    mc.Version,
-		Digest:     mc.PreviousHash,
+		Digest:     prevHash,
 		Bits:       bits,
 		MerklePath: mc.MerkleProof}, nil
 }
@@ -60,11 +64,13 @@ func MakePuzzleASICBoost(candidate Candidate, coinbaseBegin []byte, coinbaseEnd 
 // A job is a work puzzle after a stratum id has been assigned to a
 // given worker by the mining pool.
 type Job struct {
-	Puzzle      Puzzle
+	Puzzle Puzzle
+
+	// ExtraNonce1 is also the user id in Stratum.
 	ExtraNonce1 uint32
 }
 
-// A share is returned by the worker. Job + Share = Proof
+// A share is the data returned by the worker. Job + Share = Proof
 type Share struct {
 	Time               uint32
 	Nonce              uint32
@@ -99,14 +105,6 @@ type Solution struct {
 type Proof struct {
 	Puzzle   Puzzle
 	Solution Solution
-}
-
-func MakeProof(j Job, s Share) Proof {
-	return Proof{
-		Puzzle: j.Puzzle,
-		Solution: Solution{
-			ExtraNonce1: j.ExtraNonce1,
-			Share:       s}}
 }
 
 // the metadata corresponds to the coinbase transaction. In a general

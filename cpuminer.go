@@ -2,15 +2,19 @@ package work
 
 import (
 	"encoding/hex"
+	"errors"
 
 	"github.com/libsv/go-bc"
 )
 
 func CPUSolve(puzzle Puzzle, initial Solution) (*Proof, error) {
-	// check that the difficulty is not too big (1 or less)
 	difficulty, err := bc.DifficultyFromBits(hex.EncodeToString(puzzle.Candidate.Bits))
 	if err != nil {
 		return nil, err
+	}
+
+	if difficulty > 1.01 {
+		return nil, errors.New("Difficulty is too big. CPU mining is only for difficulty <= 1")
 	}
 
 	proof := Proof{
