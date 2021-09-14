@@ -6,6 +6,7 @@ import (
 	"github.com/DanielKrawisz/go-work"
 	"github.com/libsv/go-bc"
 	"github.com/libsv/go-bk/crypto"
+	"github.com/libsv/go-bt"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,7 +41,7 @@ func TestWork(t *testing.T) {
 					Candidate: work.Candidate{
 						Version:    version,
 						Digest:     m,
-						Bits:       bc.UInt32ToBytes(target),
+						Bits:       bt.ReverseBytes(bc.UInt32ToBytes(target)),
 						MerklePath: make([]string, 0),
 					},
 					CoinbaseBegin: make([]byte, 0),
