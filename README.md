@@ -28,10 +28,12 @@ creates the coinbase transaction other than 96 bits of data that will be in the
 input script. 32 of these is a user id that the pool assigns to the miner and
 the other 64 can be used by the miner.
 
-[ASIC Boost]() is a strategy for arriving faster at a given difficulty target by
+[ASIC Boost](http://www.math.rwth-aachen.de/~Timo.Hanke/AsicBoostWhitepaperrev5.pdf)
+is a strategy for arriving faster at a given difficulty target by
 caching certain data. It has to do with the details of SHA256. Because miners were
 messing around with the timestamp in order to use ASIC Boost, which is bad for
-Bitcoin's functionality as a timestamp server, [BIP 320]() was designed to
-address the problem by assigning 16 bits of the version field of the
+Bitcoin's functionality as a timestamp server,
+[BIP 320](https://github.com/bitcoin/bips/blob/master/bip-0320.mediawiki) was
+designed to address the problem by assigning 16 bits of the version field of the
 block header to be used as additional nonce data that the miner provides to the
 mining pool. Thus, there 48 total bits of arbitrary data in the block header.

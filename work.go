@@ -74,25 +74,29 @@ type Job struct {
 type Share struct {
 	Time               uint32
 	Nonce              uint32
-	ExtraNonce2        uint64
+	ExtraNonce2        []byte
 	GeneralPurposeBits *uint32
 }
 
 func MakeShare(time uint32, nonce uint32, extraNonce2 uint64) Share {
+	n2 := make([]byte, 8)
+	binary.BigEndian.PutUint64(n2, extraNonce2)
 	return Share{
 		Time:               time,
 		Nonce:              nonce,
-		ExtraNonce2:        extraNonce2,
+		ExtraNonce2:        n2,
 		GeneralPurposeBits: nil}
 }
 
 func MakeShareASICBoost(time uint32, nonce uint32, extraNonce2 uint64, gpb uint32) Share {
 	bits := new(uint32)
 	*bits = gpb
+	n2 := make([]byte, 8)
+	binary.BigEndian.PutUint64(n2, extraNonce2)
 	return Share{
 		Time:               time,
 		Nonce:              nonce,
-		ExtraNonce2:        extraNonce2,
+		ExtraNonce2:        n2,
 		GeneralPurposeBits: bits}
 }
 
@@ -115,10 +119,10 @@ func (p *Proof) Metadata() []byte {
 
 	copy(metadata, p.Puzzle.CoinbaseBegin)
 
-	binary.BigEndian.PutUint32(metadata[b:], p.Solution.ExtraNonce1)
-	binary.BigEndian.PutUint64(metadata[b+4:], p.Solution.Share.ExtraNonce2)
+	binary.LittleEndian.PutUint32(metadata[b:], p.Solution.ExtraNonce1)
+	copy(metadata[b+4:], p.Solution.Share.ExtraNonce2)
 
-	copy(metadata[b+12:], p.Puzzle.CoinbaseEnd)
+	copy(metadata[b+4+len(p.Solution.Share.ExtraNonce2):], p.Puzzle.CoinbaseEnd)
 
 	return metadata
 }
