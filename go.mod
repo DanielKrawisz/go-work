@@ -1,4 +1,4 @@
-module github.com/DanielKrawisz/go-work/v1
+module github.com/DanielKrawisz/go-work
 
 go 1.16
 
